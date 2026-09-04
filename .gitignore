@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets — NEVER commit (only .env.example is allowed)
+.env
+.env.*
+!.env.example
+
+# Private keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+*.p12
+*.pfx
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Logs & coverage
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.nyc_output/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.cursor/
+
+# Frontend local
+frontend/dist/
+
+# Supabase local
+supabase/.branches
+supabase/.temp
