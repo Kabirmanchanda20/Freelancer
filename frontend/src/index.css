@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest-950: #0a1f18;
+  --color-forest-900: #123028;
+  --color-forest-800: #1a4338;
+  --color-forest-700: #245a4a;
+  --color-forest-600: #2f7260;
+  --color-forest-500: #3d8f78;
+  --color-forest-400: #5aad94;
+  --color-forest-300: #8cc9b5;
+  --color-forest-200: #c2e4d7;
+  --color-forest-100: #e4f4ee;
+  --color-forest-50: #f3faf7;
+
+  --color-teal-600: #0d7377;
+  --color-teal-500: #14919b;
+  --color-teal-400: #2bb0ba;
+
+  --color-accent-600: #c45c26;
+  --color-accent-500: #d9783a;
+  --color-accent-400: #e8965c;
+  --color-accent-100: #fdeee4;
+
+  --color-ink: #14201c;
+  --color-muted: #5a6b64;
+  --color-surface: #f7faf8;
+  --color-border: #d5e3dc;
+}
+
+:root {
+  --brand-forest: #1a4338;
+  --brand-teal: #14919b;
+  --brand-accent: #d9783a;
+  --brand-ink: #14201c;
+  --brand-muted: #5a6b64;
+  --brand-surface: #f7faf8;
+  --brand-border: #d5e3dc;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--brand-ink);
+    background-color: var(--brand-surface);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgb(20 145 155 / 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(61 143 120 / 0.1), transparent 50%),
+      radial-gradient(ellipse 50% 30% at 50% 100%, rgb(217 120 58 / 0.06), transparent 45%),
+      repeating-linear-gradient(
+        -12deg,
+        transparent,
+        transparent 11px,
+        rgb(26 67 56 / 0.015) 11px,
+        rgb(26 67 56 / 0.015) 12px
+      );
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.8s ease-out 0.15s both;
+}
+
+.animate-drift {
+  animation: drift 5s ease-in-out infinite;
+}
+
+/* scroll-reveal — JS adds .reveal class, CSS handles the animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.3) 50%, transparent 100%);
+  background-size: 400px 100%;
+  animation: shimmer 2s infinite;
+}
