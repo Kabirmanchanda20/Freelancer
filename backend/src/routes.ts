@@ -12,6 +12,7 @@ import { notificationsRouter } from './modules/notifications/notifications.route
 import { recommendationsRouter } from './modules/recommendations/recommendations.routes.js'
 import { adminRouter } from './modules/admin/admin.routes.js'
 import { uploadsRouter } from './modules/uploads/uploads.routes.js'
+import { walletRouter } from './modules/wallet/wallet.routes.js'
 
 export const apiRouter = Router()
 
@@ -27,3 +28,4 @@ apiRouter.use('/notifications', notificationsRouter)
 apiRouter.use('/recommendations', recommendationsRouter)
 apiRouter.use('/admin', adminRouter)
 apiRouter.use('/uploads', uploadsRouter)
+apiRouter.use('/wallet', walletRouter)
