@@ -39,5 +39,6 @@ jobs:
       - run: npm run typecheck
       - name: Unit tests (no DB)
         run: npx vitest run src/utils/wallet.test.ts
+      # Full API edge-case suite needs DATABASE_URL — run locally: npm test
       - run: npm audit --audit-level=high
         continue-on-error: true
