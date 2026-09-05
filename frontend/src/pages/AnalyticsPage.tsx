@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import { format } from 'date-fns'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { Spinner, EmptyState } from '../components/ui'
 import { useMyTasks } from '../features/tasks/api'
 import { LISTING_TYPE_LABELS, type ListingType } from '../lib/constants'

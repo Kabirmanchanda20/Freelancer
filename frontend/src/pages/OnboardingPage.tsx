@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { useCategories } from '../features/catalog/api'
 import { useSetUserInterests, useUpdateProfile } from '../features/profiles/api'
 import { DIFFICULTIES, DIFFICULTY_LABELS, type Difficulty } from '../lib/constants'

@@ -1,9 +1,9 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { CategorySelect } from '../components/CategorySelect'
 import { Button, FieldError, Input, Label, Select, Textarea } from '../components/ui'
 import { useCategories, useDepartments } from '../features/catalog/api'
@@ -47,7 +47,7 @@ export function CreateListingPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
@@ -63,7 +63,7 @@ export function CreateListingPage() {
     },
   })
 
-  const listingType = watch('listing_type') as ListingType
+  const listingType = (useWatch({ control, name: 'listing_type' }) ?? 'gig') as ListingType
   const canHostWorkshop = !!profile?.can_host_workshops
 
   const onSubmit = handleSubmit(async (values) => {

@@ -1,10 +1,10 @@
 import { Link, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { ArrowRight, BookOpen, Briefcase, GraduationCap, Star, Users, Zap } from 'lucide-react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { useTasks } from '../features/tasks/api'
 import { PublicListingCard } from '../components/PublicListingCard'
-import { buttonVariants } from '../components/ui/Button'
+import { buttonVariants } from '../components/ui/buttonVariants'
 import { Spinner } from '../components/ui/Spinner'
 
 /* ── typewriter cycling phrases ─────────────────────────── */

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { format } from 'date-fns'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { Badge, Button, EmptyState, Input, Spinner, Textarea } from '../components/ui'
 import {
   useAcceptApplication,
