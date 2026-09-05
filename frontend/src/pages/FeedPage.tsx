@@ -1,20 +1,21 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BookOpen, Briefcase, Filter, GraduationCap, Search, X, Zap } from 'lucide-react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { PublicListingCard } from '../components/PublicListingCard'
 import { CategorySelect } from '../components/CategorySelect'
 import { Button, EmptyState, Select } from '../components/ui'
 import { useCategories, useDepartments } from '../features/catalog/api'
 import { useRecommendations } from '../features/recommendations/api'
 import { useTasks, type TaskFilters } from '../features/tasks/api'
+import { getErrorMessage } from '../lib/api/client'
 import {
   DIFFICULTIES,
   DIFFICULTY_LABELS,
   LISTING_TYPE_LABELS,
   type ListingType,
 } from '../lib/constants'
-import { buttonVariants } from '../components/ui/Button'
+import { buttonVariants } from '../components/ui/buttonVariants'
 
 /* ── quick-filter type chips ─────────────────────────── */
 const TYPE_CHIPS: { value: ListingType | ''; label: string; icon: React.ElementType; color: string }[] = [
@@ -29,7 +30,8 @@ export function FeedPage() {
   const { session } = useAuth()
   const [filters, setFilters] = useState<TaskFilters>({ q: '', listing_type: '', category_id: '', difficulty: '', sort: 'newest' })
   const [showFilters, setShowFilters] = useState(false)
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useTasks(filters)
+  const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
+    useTasks(filters)
   const { data: recommended = [] } = useRecommendations(!!session)
   const { data: categories = [] } = useCategories()
   const { data: departments = [] } = useDepartments()
@@ -219,6 +221,19 @@ export function FeedPage() {
                 <div className="mt-4 h-3 w-1/3 rounded bg-border/60" />
               </div>
             ))}
+          </div>
+        ) : isError ? (
+          <div className="mt-4">
+            <EmptyState title="Couldn’t load listings" description={getErrorMessage(error)} />
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="text-sm font-medium text-teal-600 hover:underline"
+              >
+                Try again
+              </button>
+            </div>
           </div>
         ) : tasks.length === 0 ? (
           <div className="mt-4">

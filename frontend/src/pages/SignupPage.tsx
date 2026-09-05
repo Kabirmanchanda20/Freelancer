@@ -1,9 +1,9 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { useDepartments } from '../features/catalog/api'
 import {
   CAMPUS_ROLES,
@@ -46,7 +46,7 @@ export function SignupPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
@@ -61,7 +61,7 @@ export function SignupPage() {
     },
   })
 
-  const role = watch('campus_role') as CampusRole
+  const role = (useWatch({ control, name: 'campus_role' }) ?? 'ug_student') as CampusRole
   const yearLabel = role === 'mtech' ? 'Year (1-2)' : role === 'phd' ? 'Year (1-3)' : 'Year (1-4)'
 
   if (!loading && session) {

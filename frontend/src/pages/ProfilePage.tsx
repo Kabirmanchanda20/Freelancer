@@ -1,10 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { Badge, Button, EmptyState, Input, Label, Spinner, Textarea } from '../components/ui'
 import { useProfile, useUpdateProfile } from '../features/profiles/api'
 import { CAMPUS_ROLE_LABELS, DIFFICULTIES, DIFFICULTY_LABELS, type CampusRole, type Difficulty } from '../lib/constants'
 import { Select } from '../components/ui/Select'
+import type { Profile } from '../types/database'
+
+function draftFromProfile(profile: Profile) {
+  return {
+    fullName: profile.full_name,
+    headline: profile.headline ?? '',
+    bio: profile.bio ?? '',
+    skills: (profile.skill_tags ?? []).join(', '),
+    linkedin: profile.linkedin_url ?? '',
+    portfolio: profile.portfolio_url ?? '',
+    experience: (profile.experience_level as Difficulty) ?? 'beginner',
+    openToWork: profile.is_open_to_work,
+  }
+}
 
 export function ProfilePage() {
   const { id } = useParams<{ id?: string }>()
@@ -25,17 +39,19 @@ export function ProfilePage() {
   const [openToWork, setOpenToWork] = useState(true)
   const [msg, setMsg] = useState<string | null>(null)
 
-  useEffect(() => {
+  const startEditing = () => {
     if (!profile) return
-    setFullName(profile.full_name)
-    setHeadline(profile.headline ?? '')
-    setBio(profile.bio ?? '')
-    setSkills((profile.skill_tags ?? []).join(', '))
-    setLinkedin(profile.linkedin_url ?? '')
-    setPortfolio(profile.portfolio_url ?? '')
-    setExperience((profile.experience_level as Difficulty) ?? 'beginner')
-    setOpenToWork(profile.is_open_to_work)
-  }, [profile])
+    const draft = draftFromProfile(profile)
+    setFullName(draft.fullName)
+    setHeadline(draft.headline)
+    setBio(draft.bio)
+    setSkills(draft.skills)
+    setLinkedin(draft.linkedin)
+    setPortfolio(draft.portfolio)
+    setExperience(draft.experience)
+    setOpenToWork(draft.openToWork)
+    setEditing(true)
+  }
 
   if (isLoading) {
     return (
@@ -96,7 +112,7 @@ export function ProfilePage() {
           </div>
         </div>
         {isOwn && !editing && (
-          <Button variant="outline" onClick={() => setEditing(true)}>
+          <Button variant="outline" onClick={startEditing}>
             Edit profile
           </Button>
         )}

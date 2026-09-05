@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { Spinner } from '../components/ui/Spinner'
-import { useAuth } from './AuthProvider'
+import { useAuth } from './useAuth'
 
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const { profile, loading } = useAuth()

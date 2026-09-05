@@ -1,9 +1,10 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Bell, Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { useUnreadNotificationCount } from '../features/notifications/api'
-import { Button, buttonVariants } from './ui/Button'
+import { Button } from './ui/Button'
+import { buttonVariants } from './ui/buttonVariants'
 import { cn } from '../lib/cn'
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>

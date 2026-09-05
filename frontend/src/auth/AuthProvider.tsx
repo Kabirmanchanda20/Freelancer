@@ -1,44 +1,12 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
-import type { CampusRole, Difficulty } from '../lib/constants'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { env } from '../lib/env'
 import { api, getErrorMessage } from '../lib/api/client'
 import { tokenStore } from './tokenStore'
 import type { Profile } from '../types/database'
 import { Spinner } from '../components/ui/Spinner'
+import { AuthContext, type AuthContextValue, type SignUpInput } from './authContext'
 
-export type SignUpInput = {
-  email: string
-  password: string
-  full_name: string
-  campus_role: CampusRole
-  department_id?: string
-  roll_or_employee_id?: string
-  program?: string
-  year_of_study?: number
-  designation?: string
-  experience_level?: Difficulty
-}
-
-type AuthContextValue = {
-  session: { accessToken: string } | null
-  user: { id: string; email: string } | null
-  profile: Profile | null
-  loading: boolean
-  signUp: (input: SignUpInput) => Promise<{ error: string | null }>
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signOut: () => Promise<void>
-  refreshProfile: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null)
+export type { SignUpInput }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null)
@@ -154,10 +122,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
 }

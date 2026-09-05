@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/useAuth'
 import { env } from '../lib/env'
 import { Button, FieldError, Input, Label } from '../components/ui'
 
