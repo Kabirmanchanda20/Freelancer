@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { BookOpen, Briefcase, Filter, GraduationCap, Search, X, Zap } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import { PublicListingCard } from '../components/PublicListingCard'
@@ -12,6 +12,7 @@ import { getErrorMessage } from '../lib/api/client'
 import {
   DIFFICULTIES,
   DIFFICULTY_LABELS,
+  LISTING_TYPES,
   LISTING_TYPE_LABELS,
   type ListingType,
 } from '../lib/constants'
@@ -26,10 +27,32 @@ const TYPE_CHIPS: { value: ListingType | ''; label: string; icon: React.ElementT
   { value: 'mentorship', label: 'Mentorship', icon: GraduationCap, color: 'bg-violet-50 text-violet-700 ring-violet-200' },
 ]
 
+function listingTypeFromParam(value: string | null): ListingType | '' {
+  if (value && (LISTING_TYPES as readonly string[]).includes(value)) return value as ListingType
+  return ''
+}
+
 export function FeedPage() {
   const { session } = useAuth()
-  const [filters, setFilters] = useState<TaskFilters>({ q: '', listing_type: '', category_id: '', difficulty: '', sort: 'newest' })
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [filters, setFilters] = useState<TaskFilters>(() => ({
+    q: '',
+    listing_type: listingTypeFromParam(searchParams.get('type')),
+    category_id: '',
+    difficulty: '',
+    sort: 'newest',
+  }))
   const [showFilters, setShowFilters] = useState(false)
+
+  const setListingType = (listing_type: ListingType | '') => {
+    setFilters((f) => ({ ...f, listing_type }))
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (listing_type) next.set('type', listing_type)
+      else next.delete('type')
+      return next
+    }, { replace: true })
+  }
   const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
     useTasks(filters)
   const { data: recommended = [] } = useRecommendations(!!session)
@@ -39,8 +62,10 @@ export function FeedPage() {
   const tasks = useMemo(() => data?.pages.flat() ?? [], [data])
   const activeFilterCount = [filters.category_id, filters.difficulty, filters.department_id].filter(Boolean).length
 
-  const clearFilters = () =>
+  const clearFilters = () => {
     setFilters({ q: '', listing_type: '', category_id: '', difficulty: '', department_id: '', sort: 'newest' })
+    setSearchParams({}, { replace: true })
+  }
 
   return (
     <div>
@@ -91,7 +116,7 @@ export function FeedPage() {
           return (
             <button
               key={value}
-              onClick={() => setFilters((f) => ({ ...f, listing_type: value }))}
+              onClick={() => setListingType(value)}
               className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 transition-all ${
                 active
                   ? `${color} shadow-sm scale-[1.02]`

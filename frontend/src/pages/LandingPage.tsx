@@ -91,10 +91,10 @@ const HOW_IT_WORKS = [
 
 /* ── listing type chips ─────────────────────────────────── */
 const LISTING_TYPES_PREVIEW = [
-  { label: 'Gig', icon: Zap, color: 'bg-teal-500/10 text-teal-600 ring-teal-200' },
-  { label: 'Workshop', icon: BookOpen, color: 'bg-accent-100 text-accent-600 ring-accent-200' },
-  { label: 'Project', icon: Briefcase, color: 'bg-forest-100 text-forest-700 ring-forest-200' },
-  { label: 'Mentorship', icon: GraduationCap, color: 'bg-violet-50 text-violet-700 ring-violet-200' },
+  { label: 'Gig', type: 'gig', icon: Zap, color: 'bg-teal-500/10 text-teal-600 ring-teal-200 hover:ring-teal-400' },
+  { label: 'Workshop', type: 'workshop', icon: BookOpen, color: 'bg-accent-100 text-accent-600 ring-accent-200 hover:ring-accent-400' },
+  { label: 'Project', type: 'project', icon: Briefcase, color: 'bg-forest-100 text-forest-700 ring-forest-200 hover:ring-forest-400' },
+  { label: 'Mentorship', type: 'mentorship', icon: GraduationCap, color: 'bg-violet-50 text-violet-700 ring-violet-200 hover:ring-violet-400' },
 ]
 
 export function LandingPage() {
@@ -146,11 +146,15 @@ export function LandingPage() {
 
         {/* listing type chips */}
         <div className="animate-fade-up-delay mt-8 flex flex-wrap justify-center gap-2.5">
-          {LISTING_TYPES_PREVIEW.map(({ label, icon: Icon, color }) => (
-            <span key={label} className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 ${color}`}>
+          {LISTING_TYPES_PREVIEW.map(({ label, type, icon: Icon, color }) => (
+            <Link
+              key={label}
+              to={`/feed?type=${type}`}
+              className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 transition hover:scale-[1.03] ${color}`}
+            >
               <Icon className="h-4 w-4" />
               {label}
-            </span>
+            </Link>
           ))}
         </div>
 
