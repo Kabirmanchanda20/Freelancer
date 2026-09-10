@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { BookOpen, Briefcase, Filter, GraduationCap, Search, X, Zap } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import { PublicListingCard } from '../components/PublicListingCard'
@@ -12,6 +12,7 @@ import { getErrorMessage } from '../lib/api/client'
 import {
   DIFFICULTIES,
   DIFFICULTY_LABELS,
+  LISTING_TYPES,
   LISTING_TYPE_LABELS,
   type ListingType,
 } from '../lib/constants'
@@ -26,10 +27,32 @@ const TYPE_CHIPS: { value: ListingType | ''; label: string; icon: React.ElementT
   { value: 'mentorship', label: 'Mentorship', icon: GraduationCap, color: 'bg-violet-50 text-violet-700 ring-violet-200' },
 ]
 
+function listingTypeFromParam(value: string | null): ListingType | '' {
+  if (value && (LISTING_TYPES as readonly string[]).includes(value)) return value as ListingType
+  return ''
+}
+
 export function FeedPage() {
   const { session } = useAuth()
-  const [filters, setFilters] = useState<TaskFilters>({ q: '', listing_type: '', category_id: '', difficulty: '', sort: 'newest' })
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [filters, setFilters] = useState<TaskFilters>(() => ({
+    q: '',
+    listing_type: listingTypeFromParam(searchParams.get('type')),
+    category_id: '',
+    difficulty: '',
+    sort: 'newest',
+  }))
   const [showFilters, setShowFilters] = useState(false)
+
+  const setListingType = (listing_type: ListingType | '') => {
+    setFilters((f) => ({ ...f, listing_type }))
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (listing_type) next.set('type', listing_type)
+      else next.delete('type')
+      return next
+    }, { replace: true })
+  }
   const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
     useTasks(filters)
   const { data: recommended = [] } = useRecommendations(!!session)
@@ -39,22 +62,24 @@ export function FeedPage() {
   const tasks = useMemo(() => data?.pages.flat() ?? [], [data])
   const activeFilterCount = [filters.category_id, filters.difficulty, filters.department_id].filter(Boolean).length
 
-  const clearFilters = () =>
+  const clearFilters = () => {
     setFilters({ q: '', listing_type: '', category_id: '', difficulty: '', department_id: '', sort: 'newest' })
+    setSearchParams({}, { replace: true })
+  }
 
   return (
     <div>
       {/* ── hero header ────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-forest-900 via-forest-800 to-forest-950 px-6 py-10 sm:px-10 sm:py-14">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-forest-900 via-forest-800 to-forest-950 px-5 py-7 sm:px-8 sm:py-9">
         <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-60 w-60 rounded-full bg-teal-500/15 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -left-8 bottom-0 h-40 w-40 rounded-full bg-accent-500/10 blur-2xl" />
 
-        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+            <h1 className="font-display text-2xl font-bold text-white sm:text-3xl">
               Browse campus listings
             </h1>
-            <p className="mt-2 max-w-md text-sm text-white/60">
+            <p className="mt-1.5 max-w-md text-sm text-white/60">
               {tasks.length > 0
                 ? `${tasks.length}+ open gigs, workshops & projects from Thapar students and faculty.`
                 : 'Find gigs, workshops, projects, and mentorship.'}
@@ -68,7 +93,7 @@ export function FeedPage() {
         </div>
 
         {/* search bar */}
-        <div className="relative mt-6 flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 ring-1 ring-white/20 backdrop-blur-md sm:max-w-lg">
+        <div className="relative mt-5 flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 ring-1 ring-white/20 backdrop-blur-md sm:max-w-lg">
           <Search className="h-4 w-4 shrink-0 text-white/50" />
           <input
             className="flex-1 bg-transparent text-sm text-white placeholder:text-white/40 outline-none"
@@ -91,7 +116,7 @@ export function FeedPage() {
           return (
             <button
               key={value}
-              onClick={() => setFilters((f) => ({ ...f, listing_type: value }))}
+              onClick={() => setListingType(value)}
               className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 transition-all ${
                 active
                   ? `${color} shadow-sm scale-[1.02]`
@@ -187,9 +212,9 @@ export function FeedPage() {
 
       {/* ── recommended (logged-in only) ─────────────── */}
       {session && recommended.length > 0 && (
-        <section className="mt-10">
-          <h2 className="font-display text-xl font-semibold text-forest-900">✨ Recommended for you</h2>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-8">
+          <h2 className="font-display text-lg font-semibold text-forest-900">Recommended for you</h2>
+          <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recommended.slice(0, 3).map((t) => (
               <PublicListingCard key={t.id} task={t} />
             ))}
@@ -199,26 +224,39 @@ export function FeedPage() {
 
       {/* ── main listings grid ────────────────────────── */}
       <section className="mt-8">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-xl font-semibold text-forest-900">
-            {filters.listing_type
-              ? LISTING_TYPE_LABELS[filters.listing_type as ListingType] + 's'
-              : 'All listings'}
-          </h2>
-          {!isLoading && tasks.length > 0 && (
-            <span className="text-sm text-muted">{tasks.length} result{tasks.length === 1 ? '' : 's'}</span>
-          )}
+        <div className="mb-4 flex items-baseline justify-between gap-3">
+          <p className="text-base text-ink">
+            {isLoading ? (
+              'Loading listings…'
+            ) : (
+              <>
+                Found <span className="font-semibold">{tasks.length}</span>{' '}
+                {filters.listing_type
+                  ? LISTING_TYPE_LABELS[filters.listing_type as ListingType].toLowerCase() +
+                    (tasks.length === 1 ? '' : 's')
+                  : tasks.length === 1
+                    ? 'listing'
+                    : 'listings'}
+              </>
+            )}
+          </p>
         </div>
 
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-border/60 bg-white/50 p-5">
-                <div className="h-4 w-20 rounded bg-border/60" />
-                <div className="mt-3 h-5 w-3/4 rounded bg-border/60" />
-                <div className="mt-2 h-3 w-full rounded bg-border/60" />
-                <div className="mt-1.5 h-3 w-2/3 rounded bg-border/60" />
-                <div className="mt-4 h-3 w-1/3 rounded bg-border/60" />
+              <div key={i} className="animate-pulse rounded-2xl border border-border/60 bg-white p-5 shadow-sm">
+                <div className="flex justify-between">
+                  <div className="h-5 w-2/3 rounded bg-border/60" />
+                  <div className="h-5 w-16 rounded-full bg-border/60" />
+                </div>
+                <div className="mt-3 h-4 w-20 rounded bg-border/60" />
+                <div className="mt-5 space-y-2">
+                  <div className="h-3.5 w-1/2 rounded bg-border/60" />
+                  <div className="h-3.5 w-2/3 rounded bg-border/60" />
+                  <div className="h-3.5 w-3/5 rounded bg-border/60" />
+                </div>
+                <div className="mt-5 h-10 w-full rounded-lg bg-border/60" />
               </div>
             ))}
           </div>
@@ -254,7 +292,7 @@ export function FeedPage() {
             )}
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {tasks.map((t) => (
               <PublicListingCard key={t.id} task={t} />
             ))}
@@ -262,7 +300,7 @@ export function FeedPage() {
         )}
 
         {hasNextPage && (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <Button
               variant="outline"
               onClick={() => void fetchNextPage()}

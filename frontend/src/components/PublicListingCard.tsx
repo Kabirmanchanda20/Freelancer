@@ -1,98 +1,91 @@
 import { Link } from 'react-router-dom'
-import { formatDistanceToNow } from 'date-fns'
-import { Clock, MapPin, Star, Users, BadgeCheck } from 'lucide-react'
-import { LISTING_TYPE_LABELS, DIFFICULTY_LABELS, type ListingType, type Difficulty } from '../lib/constants'
+import { format } from 'date-fns'
+import { Calendar, MapPin, User } from 'lucide-react'
+import {
+  CAMPUS_ROLE_LABELS,
+  LISTING_TYPE_LABELS,
+  TASK_STATUS_LABELS,
+  type CampusRole,
+  type ListingType,
+  type TaskStatus,
+} from '../lib/constants'
 import type { Task } from '../types/database'
+import { cn } from '../lib/cn'
 
-const typeColor: Record<string, string> = {
-  gig: 'bg-teal-500/10 text-teal-600 ring-1 ring-teal-500/20',
-  workshop: 'bg-accent-100 text-accent-600 ring-1 ring-accent-500/20',
-  project: 'bg-forest-100 text-forest-700 ring-1 ring-forest-300/40',
-  mentorship: 'bg-violet-50 text-violet-700 ring-1 ring-violet-200',
+function locationLabel(task: Task): string {
+  if (task.venue) return task.venue
+  if (task.mode === 'online') return 'Online'
+  if (task.mode === 'hybrid') return 'Hybrid'
+  if (task.department?.code) return task.department.code
+  return 'Campus'
 }
 
-const diffColor: Record<string, string> = {
-  beginner: 'text-emerald-600 bg-emerald-50',
-  intermediate: 'text-amber-600 bg-amber-50',
-  advanced: 'text-red-600 bg-red-50',
-}
-
-export function PublicListingCard({ task }: { task: Task }) {
-  const isWorkshop = task.listing_type === 'workshop'
-  const ago = formatDistanceToNow(new Date(task.created_at), { addSuffix: true })
-  const rating = Number(task.poster?.avg_rating ?? 0)
-  const completed = Number((task.poster as { completed_count?: number } | null | undefined)?.completed_count ?? 0)
+export function PublicListingCard({
+  task,
+  className,
+}: {
+  task: Task
+  className?: string
+}) {
   const budget = Number(task.budget ?? 0)
+  const posterName = task.poster?.full_name?.trim() || 'Thapar member'
+  const role = task.poster?.campus_role
+    ? CAMPUS_ROLE_LABELS[task.poster.campus_role as CampusRole]
+    : null
+  const statusLabel =
+    task.status === 'open'
+      ? 'Open'
+      : TASK_STATUS_LABELS[task.status as TaskStatus] ?? task.status
 
   return (
     <Link
       to={`/tasks/${task.id}`}
-      className="group flex flex-col gap-3 rounded-2xl border border-border/80 bg-white/70 p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-teal-300/60"
+      className={cn(
+        'group flex h-full flex-col rounded-2xl border border-border/70 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-300/50 hover:shadow-md',
+        className,
+      )}
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${typeColor[task.listing_type] ?? typeColor.gig}`}>
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="min-w-0 flex-1 font-sans text-lg font-bold leading-snug text-ink transition-colors group-hover:text-teal-700 line-clamp-2">
+          {task.title}
+        </h3>
+        <span className="shrink-0 rounded-full bg-forest-50 px-2.5 py-1 text-xs font-medium text-forest-800 ring-1 ring-border/70">
+          {statusLabel}
+        </span>
+      </div>
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
           {LISTING_TYPE_LABELS[task.listing_type as ListingType]}
         </span>
-        {task.difficulty && (
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${diffColor[task.difficulty]}`}>
-            {DIFFICULTY_LABELS[task.difficulty as Difficulty]}
-          </span>
-        )}
-        {task.category && (
-          <span className="rounded-full bg-forest-50 px-2.5 py-0.5 text-xs text-muted ring-1 ring-border/60">
+        {task.category?.name && (
+          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
             {task.category.name}
           </span>
         )}
         {budget > 0 && (
-          <span className="rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-semibold text-accent-600">
+          <span className="rounded-md bg-accent-100 px-2 py-0.5 text-xs font-semibold text-accent-600">
             {budget} credits
           </span>
         )}
       </div>
 
-      <h3 className="font-display text-lg font-semibold leading-snug text-forest-900 group-hover:text-teal-600 transition-colors">
-        {task.title}
-      </h3>
-
-      <p className="line-clamp-2 text-sm text-muted leading-relaxed">{task.description}</p>
-
-      {/* Trust signals */}
-      <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
-        <span className="inline-flex items-center gap-1 font-medium text-forest-800">
-          <BadgeCheck className="h-3.5 w-3.5 text-teal-500" />
-          @thapar.edu
-        </span>
-        {rating > 0 && (
-          <span className="inline-flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-            {rating.toFixed(1)}
+      <div className="mt-auto space-y-2 pt-4 text-sm text-muted">
+        <p className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
+          <span className="truncate">{locationLabel(task)}</span>
+        </p>
+        <p className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 shrink-0 text-slate-400" />
+          <span>Posted: {format(new Date(task.created_at), 'MMM d, yyyy')}</span>
+        </p>
+        <p className="flex items-center gap-2">
+          <User className="h-4 w-4 shrink-0 text-slate-400" />
+          <span className="truncate">
+            Posted by <span className="font-medium text-ink">{posterName}</span>
+            {role ? ` · ${role}` : ''}
           </span>
-        )}
-        {completed > 0 && (
-          <span>{completed} completed</span>
-        )}
-      </div>
-
-      <div className="mt-auto flex flex-wrap items-center gap-3 text-xs text-muted pt-1 border-t border-border/50">
-        {isWorkshop && task.max_participants && (
-          <span className="flex items-center gap-1">
-            <Users className="h-3.5 w-3.5" />
-            {task.max_participants} seats
-          </span>
-        )}
-        {isWorkshop && task.mode && (
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {task.mode === 'online' ? 'Online' : task.venue ?? task.mode}
-          </span>
-        )}
-        {task.deadline && !isWorkshop && (
-          <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />
-            Due {formatDistanceToNow(new Date(task.deadline), { addSuffix: true })}
-          </span>
-        )}
-        <span className="ml-auto font-medium">{task.poster?.full_name ?? 'Thapar member'} · {ago}</span>
+        </p>
       </div>
     </Link>
   )
